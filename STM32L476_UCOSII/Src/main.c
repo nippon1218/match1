@@ -6,14 +6,14 @@
 /* USER CODE BEGIN Includes */
 #include "includes.h"
 #include "ucosiitask.h"
-
-
+#include "delay.h"
 
 
 
 int main(void)
 {
   HAL_Init();
+	delay_init(80);
   SystemClock_Config();
   MX_GPIO_Init();
   MX_USART2_UART_Init();

@@ -9,7 +9,7 @@
 
 //LED0任务
 //设置任务优先级
-#define LED0_TASK_PRIO 				3
+#define LED0_TASK_PRIO 				8
 //任务堆栈大小
 #define LED0_STK_SIZE				128
 

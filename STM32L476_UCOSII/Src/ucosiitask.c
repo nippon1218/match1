@@ -2,9 +2,13 @@
 #include "stm32l4xx_hal.h"
 #include "usart.h"
 #include "gpio.h"
-
+#include "delay.h"
 /* USER CODE BEGIN Includes */
 #include "includes.h"
+
+#define LedToggle HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
+
+
 
 //任务堆栈
 __align(4) OS_STK	START_TASK_STK[START_STK_SIZE];
@@ -28,8 +32,13 @@ void start_task(void *pdata){
 
 void led0_task(void *pdata){
 	while(1){	
-		HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
-		OSTimeDly(500);//延时500ms
+//		HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
+//		LedToggle;
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,1);
+//		OSTimeDly(500);//延时500ms
+		delay_us(8333333);
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,0);
+		delay_us(8333333);
 	}
 }
 
