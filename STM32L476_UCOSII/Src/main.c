@@ -2,6 +2,7 @@
 #include "stm32l4xx_hal.h"
 #include "usart.h"
 #include "gpio.h"
+#include "myiic.h"
 
 /* USER CODE BEGIN Includes */
 #include "includes.h"
@@ -9,17 +10,16 @@
 #include "delay.h"
 
 
-
 int main(void)
 {
   HAL_Init();
 	delay_init(80);
+	IIC_Init();
+	
   SystemClock_Config();
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-
 	printf("时钟主频为：%dMhz\r\n",HAL_RCC_GetHCLKFreq()/1000000);
-	
 	OSInit();  //初始化UCOS
 	OSTaskCreate(start_task,  									//start_task任务
 					(void*)0,    									//参数
