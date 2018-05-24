@@ -5,9 +5,13 @@
 #include "delay.h"
 /* USER CODE BEGIN Includes */
 #include "includes.h"
+#include "24cxx.h"
 
 #define LedToggle HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 
+const u8 TEXT_Buffer[]={"sony*****IICTest"};
+const u8 data1=11;
+#define SIZE sizeof(TEXT_Buffer)
 
 
 //任务堆栈
@@ -15,17 +19,17 @@ __align(4) OS_STK	START_TASK_STK[START_STK_SIZE];
 __align(4) OS_STK LED0_TASK_STK[LED0_STK_SIZE];
 __align(8) OS_STK float_TASK_STK[float_STK_SIZE];
 __align(8) OS_STK japan_TASK_STK[japan_STK_SIZE];
-
+__align(8) OS_STK hello_TASK_STK[hello_STK_SIZE];
 
 
 void start_task(void *pdata){
 	OS_CPU_SR cpu_sr;
-
 	OSStatInit();  //开启统计任务
 	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
 	OSTaskCreate(led0_task,(void*)0,(OS_STK*)&LED0_TASK_STK[LED0_STK_SIZE-1],LED0_TASK_PRIO); 		//LED0任务
 	OSTaskCreate(float_task,(void*)0,(OS_STK*)&float_TASK_STK[float_STK_SIZE-1],float_TASK_PRIO); 		//LED1任务
 	OSTaskCreate(japan_task,(void*)0,(OS_STK*)&japan_TASK_STK[japan_STK_SIZE-1],japan_TASK_PRIO); 
+	OSTaskCreate(hello_task,(void*)0,(OS_STK*)&hello_TASK_STK[hello_STK_SIZE-1],hello_TASK_PRIO); 
 	OSTaskSuspend(OS_PRIO_SELF); //挂起start任务
 	OS_EXIT_CRITICAL();  //退出临界区,开中断	
 }
@@ -68,6 +72,27 @@ void japan_task(void *pdata){
 		printf("japan\r\n");
 		OSTimeDly(600);//延时500ms
 	}
+}
+
+void hello_task(void *pdata)
+	{
+		u8 datatemp[SIZE];
+		u8 num=0;		
+		while(1)
+		{	
+			OS_CPU_SR cpu_sr;			
+
+			OS_ENTER_CRITICAL();  //进入临界区,关闭中断
+			num++;
+			AT24CXX_Write(0,(u8*)TEXT_Buffer,SIZE);
+			delay_ms(10);
+			AT24CXX_Read(0,datatemp,SIZE);
+			delay_ms(50); 
+			u2_printf("结果是%s\r\n\r\n",datatemp);
+			OS_EXIT_CRITICAL();  //退出临界区,开中断
+//			delay_ms(800);//延时500ms
+			OSTimeDly(1200);//延时500ms
+		}
 }
 
 

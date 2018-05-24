@@ -25,6 +25,8 @@
 //任务堆栈大小
 #define japan_STK_SIZE				128
 
+#define hello_TASK_PRIO 				3
+#define hello_STK_SIZE 				256
 
 //任务堆栈
 extern __align(4) OS_STK	START_TASK_STK[START_STK_SIZE];
@@ -34,7 +36,7 @@ void start_task(void *pdata);
 void led0_task(void *pdata);
 void float_task(void *pdata);
 void japan_task(void *pdata);
-
+void hello_task(void *pdata);
 
 #endif
 

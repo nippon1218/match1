@@ -67,7 +67,7 @@ int fputc(int ch, FILE *f)
 u16 USART2_RX_LEN=0;
 
 u8 USART2_RX_BUF[USART2_MAX_RECV_LEN]; 
-
+__align(8) u8 USART2_TX_BUF[USART2_MAX_SEND_LEN]; 	//发送缓冲,最大USART2_MAX_SEND_LEN字节 
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart2;
@@ -171,6 +171,22 @@ void USART2_IRQHandler(void)
 	}
 	HAL_UART_IRQHandler(&huart2);	
 } 
+
+
+void u2_printf(char* fmt,...)  
+{  
+	u16 i,j; 
+	va_list ap; 
+	va_start(ap,fmt);
+	vsprintf((char*)USART2_TX_BUF,fmt,ap);
+	va_end(ap);
+	i=strlen((const char*)USART2_TX_BUF);		//此次发送数据的长度
+	for(j=0;j<i;j++)							//循环发送数据
+	{
+		while((USART2->ISR&0X40)==0);			//循环发送,直到发送完毕   
+		USART2->TDR=USART2_TX_BUF[j];  
+	} 
+}
 
 
 

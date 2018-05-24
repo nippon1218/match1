@@ -41,6 +41,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 #include "sys.h"
+#include "stdarg.h"	 	 
+#include "stdio.h"	 	 
+#include "string.h"	
+	 
+	 
 	 
 	 //串口2相关宏定义
 #define USART2_MAX_RECV_LEN		800					//最大接收缓存字节数
@@ -61,7 +66,7 @@ extern u16 USART2_RX_LEN;   						//接收数据状态
 /* USER CODE END Private defines */
 
 void MX_USART2_UART_Init(void);
-
+void u2_printf(char* fmt,...) ;
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */

@@ -93,18 +93,20 @@ u8 IIC_Wait_Ack(void)
 		if(ucErrTime>250)
 		{
 			IIC_Stop();
+			OS_EXIT_CRITICAL();  //退出临界区,开中断	
 			return 1;
 		}
 	}
 	IIC_SCL_0;                //时钟输出0 	   
 	OS_EXIT_CRITICAL();  //退出临界区,开中断	
 	return 0;  
-	
 } 
 
 
 void IIC_Ack(void)
 {
+	OS_CPU_SR cpu_sr;
+	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
 	IIC_SCL_0;	         //时钟线低电平
 	SDA_OUT();
 	IIC_SDA_0;	         //数据线低电平
@@ -112,10 +114,13 @@ void IIC_Ack(void)
 	IIC_SCL_1;	         //时钟线高电平
 	delay_us(17);
 	IIC_SCL_0;	         //时钟线低电平
+	OS_EXIT_CRITICAL();  //退出临界区,开中断	
 }
 
 void IIC_NAck(void)
 {
+	OS_CPU_SR cpu_sr;
+	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
 	IIC_SCL_0;	         //时钟线低电平
 	SDA_OUT();           //SDA设置为输出
 	IIC_SDA_1;	         //数据线高电平
@@ -123,28 +128,34 @@ void IIC_NAck(void)
 	IIC_SCL_1;	         //时钟线高电平
 	delay_us(17);
 	IIC_SCL_0;	         //时钟线低电平
+	OS_EXIT_CRITICAL();  //退出临界区,开中断	
 }		
 
 void IIC_Send_Byte(u8 txd)
 {                        
-    u8 t;   
-		SDA_OUT(); 	           //SDA设置为输出    
-    IIC_SCL_0;             //拉低时钟线，开始数据传输
-    for(t=0;t<8;t++)
-    {
-			HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,(txd&0x80)>>7);			
-			txd<<=1; 	  
-			delay_us(17);       //对TEA5767这三个延时都是必须的
-			IIC_SCL_1;
-			delay_us(17); 
-			IIC_SCL_0;	
-			delay_us(17);
-    }	 
+	u8 t; 
+	OS_CPU_SR cpu_sr;
+	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
+	SDA_OUT(); 	           //SDA设置为输出    
+	IIC_SCL_0;             //拉低时钟线，开始数据传输
+	for(t=0;t<8;t++)
+	{
+		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,(txd&0x80)>>7);			
+		txd<<=1; 	  
+		delay_us(17);       //对TEA5767这三个延时都是必须的
+		IIC_SCL_1;
+		delay_us(17); 
+		IIC_SCL_0;	
+		delay_us(17);
+	}	 
+	OS_EXIT_CRITICAL();  //退出临界区,开中断	
 } 	
 
 u8 IIC_Read_Byte(unsigned char ack)
 {
+	OS_CPU_SR cpu_sr;
 	unsigned char i,receive=0;
+	OS_ENTER_CRITICAL();  //进入临界区,关闭中断	
 	SDA_IN();                   //SDA设置为输入
   for(i=0;i<8;i++ )
 	{
@@ -154,7 +165,8 @@ u8 IIC_Read_Byte(unsigned char ack)
 		receive<<=1;
 		if(READ_SDA==GPIO_PIN_SET)receive++;   
 		delay_us(9); 
-  }					 
+  }
+	OS_EXIT_CRITICAL();  //退出临界区,开中断		
 	if (!ack)
 			IIC_NAck();            //发送nACK
 	else

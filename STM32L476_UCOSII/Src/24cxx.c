@@ -1,13 +1,12 @@
 #include "24cxx.h"
 #include "delay.h"
-
+#include "usart.h"
 
 
 void AT24CXX_Init(void)
 {
 	IIC_Init();//IIC初始化
 }
-
 
 u8 AT24CXX_ReadOneByte(u16 ReadAddr)
 {				  
@@ -34,7 +33,7 @@ u8 AT24CXX_ReadOneByte(u16 ReadAddr)
 //DataToWrite:要写入的数据
 void AT24CXX_WriteOneByte(u16 WriteAddr,u8 DataToWrite)
 {				   	  	    																 
-    IIC_Start();  
+  IIC_Start();  
 	if(EE_TYPE>AT24C16)
 	{
 		IIC_Send_Byte(0XA0);	    //发送写命令
@@ -87,13 +86,17 @@ u32 AT24CXX_ReadLenByte(u16 ReadAddr,u8 Len)
 u8 AT24CXX_Check(void)
 {
 	u8 temp;
-	temp=AT24CXX_ReadOneByte(255);//避免每次开机都写AT24CXX			   
-	if(temp==0X55)return 0;		   
+	temp=AT24CXX_ReadOneByte(255);//避免每次开机都写AT24CXX	
+	if(temp==0X54)return 0;		   
 	else//排除第一次初始化的情况
 	{
-		AT24CXX_WriteOneByte(255,0X55);
-	    temp=AT24CXX_ReadOneByte(255);	  
-		if(temp==0X55)return 0;
+		AT24CXX_WriteOneByte(255,0X54);
+	  temp=AT24CXX_ReadOneByte(255);
+		
+		if(temp==0X54)
+		{
+			return 0;
+		}
 	}
 	return 1;											  
 }
@@ -106,16 +109,19 @@ void AT24CXX_Read(u16 ReadAddr,u8 *pBuffer,u16 NumToRead)
 {
 	while(NumToRead)
 	{
-		*pBuffer++=AT24CXX_ReadOneByte(ReadAddr++);	
+		*pBuffer++=AT24CXX_ReadOneByte(ReadAddr++);			
 		NumToRead--;
 	}
-}  
+}
+
+
 //在AT24CXX里面的指定地址开始写入指定个数的数据
 //WriteAddr :开始写入的地址 对24c02为0~255
 //pBuffer   :数据数组首地址
 //NumToWrite:要写入数据的个数
 void AT24CXX_Write(u16 WriteAddr,u8 *pBuffer,u16 NumToWrite)
 {
+	
 	while(NumToWrite--)
 	{
 		AT24CXX_WriteOneByte(WriteAddr,*pBuffer);
