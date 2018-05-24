@@ -3,6 +3,8 @@
 #include "includes.h"
 #include "delay.h"
 
+
+
 void IIC_Init(void)
 {
     GPIO_InitTypeDef GPIO_Initure;    

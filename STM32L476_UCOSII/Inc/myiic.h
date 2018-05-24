@@ -9,7 +9,7 @@
 #define IIC_SCL_0 HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_RESET)
 
 
-#define READ_SDA HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_6)		
+#define READ_SDA	 HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_6)		
 
 /***********************IIC所有操作函数************************************/
 

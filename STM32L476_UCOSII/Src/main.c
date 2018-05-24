@@ -8,17 +8,28 @@
 #include "includes.h"
 #include "ucosiitask.h"
 #include "delay.h"
+#include "24cxx.h"
 
 
 int main(void)
 {
   HAL_Init();
 	delay_init(80);
-	IIC_Init();
-	
+//	IIC_Init();
+	AT24CXX_Init();
   SystemClock_Config();
+	
+
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+	
+	
+	while(AT24CXX_Check())//检测不到24c02
+	{
+		printf("检测不到24c02\r\n");
+		delay_ms(400);
+	}
+	
 	printf("时钟主频为：%dMhz\r\n",HAL_RCC_GetHCLKFreq()/1000000);
 	OSInit();  //初始化UCOS
 	OSTaskCreate(start_task,  									//start_task任务
