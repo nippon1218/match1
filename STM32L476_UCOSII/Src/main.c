@@ -10,33 +10,28 @@
 #include "delay.h"
 #include "24cxx.h"
 #include "tmp006.h"
-
+#include "esp8266.h"
+#include "timer.h"
 
 int main(void)
 {
-	OS_CPU_SR cpu_sr;
-	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
+//	OS_CPU_SR cpu_sr;
+//	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
 	
   HAL_Init();
 	delay_init(80);
-//	IIC_Init();
-	
-	AT24CXX_Init();
-	
+	IIC_Init();
+		
   SystemClock_Config();
 	
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_USART3_UART_Init();	
+
 	
+//	ESP8266_AP_Init(4);
 	
-	
-//	while(AT24CXX_Check())//检测不到24c02
-//	{
-//		printf("检测不到24c02\r\n");
-//		delay_ms(500);
-//	}
-	
-	OS_EXIT_CRITICAL();  //退出临界区,开中
+//	OS_EXIT_CRITICAL();  //退出临界区,开中
 	printf("时钟主频为：%dMhz\r\n",HAL_RCC_GetHCLKFreq()/1000000);
 	OSInit();  //初始化UCOS
 	OSTaskCreate(start_task,  									//start_task任务
@@ -44,7 +39,7 @@ int main(void)
 					(OS_STK*)&START_TASK_STK[START_STK_SIZE-1], 	//任务堆栈栈顶
 					START_TASK_PRIO);  								//任务优先级
 	OSStart(); 
-				
+
   while (1)
   {
 

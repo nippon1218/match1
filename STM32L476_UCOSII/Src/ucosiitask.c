@@ -7,8 +7,8 @@
 #include "includes.h"
 #include "24cxx.h"
 #include "tmp006.h"
-
-
+#include "bma222.h"
+#include "esp8266.h"
 
 #define LedToggle HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 
@@ -24,6 +24,11 @@ __align(8) OS_STK float_TASK_STK[float_STK_SIZE];
 __align(8) OS_STK japan_TASK_STK[japan_STK_SIZE];
 __align(8) OS_STK hello_TASK_STK[hello_STK_SIZE];
 __align(8) OS_STK tmp_TASK_STK[tmp_STK_SIZE];
+__align(8) OS_STK bma_TASK_STK[bma_STK_SIZE];
+
+
+
+
 
 void start_task(void *pdata){
 	OS_CPU_SR cpu_sr;
@@ -34,16 +39,31 @@ void start_task(void *pdata){
 //	OSTaskCreate(japan_task,(void*)0,(OS_STK*)&japan_TASK_STK[japan_STK_SIZE-1],japan_TASK_PRIO); 
 //	OSTaskCreate(hello_task,(void*)0,(OS_STK*)&hello_TASK_STK[hello_STK_SIZE-1],hello_TASK_PRIO); 
 	OSTaskCreate(tmp_task,(void*)0,(OS_STK*)&tmp_TASK_STK[tmp_STK_SIZE-1],tmp_TASK_PRIO); 
+	OSTaskCreate(bma_task,(void*)0,(OS_STK*)&bma_TASK_STK[bma_STK_SIZE-1],bma_TASK_PRIO);
 	OSTaskSuspend(OS_PRIO_SELF); //挂起start任务
 	OS_EXIT_CRITICAL();  //退出临界区,开中断	
 }
 
 void led0_task(void *pdata){
-	while(1){	
+	u8 len;
+	while(1){
+
 //		HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 //		LedToggle;
 		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,1);
 //		OSTimeDly(500);//延时500ms
+		 
+		if(USART3_RX_LEN&0x8000)
+		{
+			len=USART3_RX_LEN&0x3fff;			//获取串口2接收数组字符长度			
+			USART3_RX_BUF[len]=0;			    //串口2接收数组末尾添0,作为字符串的结束	
+			if(strstr((const char *)USART3_RX_BUF,(const char *)"japan"))   //判断USART2_RX_BUF中是否存在"SZ"
+				{			 				
+					u2_printf("japan：sony*******************\r\n");	//串口设置功能模块  	
+				}
+			memset(USART3_RX_BUF,0,len);   //清除串口2
+			USART3_RX_LEN=0; 
+		}
 		delay_us(8333333);
 		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,0);
 		delay_us(8333333);
@@ -79,7 +99,7 @@ void japan_task(void *pdata){
 }
 
 void hello_task(void *pdata)
-	{
+{
 		u8 datatemp[SIZE];
 		u8 num=0;		
 		while(1)
@@ -114,13 +134,25 @@ void tmp_task(void *pdata)
 				Conf_Read = tmp006_ReadTwoByte(0x02);  
 		} while ((Conf_Read&0x0080) != 0x0080); 
 		 Tdie_Temp = tmp006_ReadTwoByte(0x01) ;
-		
+
 		u2_printf("环境温度：%d\r\n",Tdie_Temp);
 		//delay_ms(1000);
 		OSTimeDly(1200);
 	}
 }
 
+
+void bma_task(void *pdata)
+{	
+	while(1)
+	{	
+		bma222_ReadAcc();
+		u2_printf("x：%d\r\n",bmadata[0]);
+		u2_printf("y：%d\r\n",bmadata[1]);
+		u2_printf("z：%d\r\n",bmadata[2]);
+		OSTimeDly(1200);
+	}
+}
 
 
 

@@ -35,7 +35,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
 #include "sys.h"
-
+#include "timer.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
@@ -65,13 +65,16 @@ int fputc(int ch, FILE *f)
 #endif
 
 u16 USART2_RX_LEN=0;
+u16 USART3_RX_LEN=0;
 
 u8 USART2_RX_BUF[USART2_MAX_RECV_LEN]; 
+u8 USART3_RX_BUF[USART3_MAX_RECV_LEN];
 __align(8) u8 USART2_TX_BUF[USART2_MAX_SEND_LEN]; 	//发送缓冲,最大USART2_MAX_SEND_LEN字节 
+__align(8) u8 USART3_TX_BUF[USART3_MAX_SEND_LEN]; 	//发送缓冲,最大USART2_MAX_SEND_LEN字节 
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart2;
-
+UART_HandleTypeDef huart3;
 /* USART2 init function */
 
 void MX_USART2_UART_Init(void)
@@ -87,6 +90,21 @@ void MX_USART2_UART_Init(void)
   huart2.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   HAL_UART_Init(&huart2);
+}
+
+void MX_USART3_UART_Init(void)
+{
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  HAL_UART_Init(&huart3);
 }
 
 
@@ -119,6 +137,34 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
   /* USER CODE END USART2_MspInit 1 */
   }
+	if(huart->Instance==USART3)
+  {
+    __USART3_CLK_ENABLE();
+		__HAL_RCC_GPIOC_CLK_ENABLE();	
+    /**USART3 GPIO Configuration    
+    PC4     ------> USART3_TX
+    PC5     ------> USART3_RX 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+		__HAL_UART_ENABLE_IT(huart,UART_IT_RXNE);		//开启接收中断
+		HAL_NVIC_EnableIRQ(USART3_IRQn);				//使能USART2中断
+		HAL_NVIC_SetPriority(USART3_IRQn,2,3);			//抢占优先级1，子优先级3
+
+		TIM7_Init(3000-1,3000-1);		                //100ms中断?????
+		USART3_RX_LEN=0;		                            //清零
+		TIM7->CR1&=~(1<<0);                             //关闭定时器7			
+  /* USER CODE BEGIN USART2_MspInit 1 */
+
+  /* USER CODE END USART2_MspInit 1 */
+  }
+	
+	
 }
 
 void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
@@ -172,6 +218,32 @@ void USART2_IRQHandler(void)
 	HAL_UART_IRQHandler(&huart2);	
 } 
 
+void USART3_IRQHandler(void)                	
+{ 
+	u8 res;	      
+	if(__HAL_UART_GET_FLAG(&huart3,UART_FLAG_RXNE)!=RESET)//接收到数据
+	{	 
+		res=USART3->RDR;
+		if((USART3_RX_LEN&(1<<15))==0)               //接收完的一批数据,还没有被处理,则不再接收其他数据
+		{ 
+			if(USART3_RX_LEN<USART3_MAX_RECV_LEN)	    //还可以接收数据
+			{
+				TIM7->CNT=0;         				//计数器清空	
+				if(USART3_RX_LEN==0) 				//使能定时器7的中断 
+				{
+					TIM7->CR1|=1<<0;     			//使能定时器7
+				}
+				USART3_RX_BUF[USART3_RX_LEN++]=res;	//记录接收到的值
+			}
+			else 
+			{
+				USART3_RX_LEN|=1<<15;			    //强制标记接收完成
+			} 
+		}
+	}  				 											 
+}  
+
+
 
 void u2_printf(char* fmt,...)  
 {  
@@ -188,6 +260,20 @@ void u2_printf(char* fmt,...)
 	} 
 }
 
+void u3_printf(char* fmt,...)  
+{  
+	u16 i,j; 
+	va_list ap; 
+	va_start(ap,fmt);
+	vsprintf((char*)USART3_TX_BUF,fmt,ap);
+	va_end(ap);
+	i=strlen((const char*)USART3_TX_BUF);		//此次发送数据的长度
+	for(j=0;j<i;j++)							//循环发送数据
+	{
+		while((USART3->ISR&0X40)==0);			//循环发送,直到发送完毕   
+		USART3->TDR=USART3_TX_BUF[j];  
+	} 
+}
 
 
 /* USER CODE BEGIN 1 */

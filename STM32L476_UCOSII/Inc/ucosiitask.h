@@ -9,7 +9,7 @@
 
 //LED0任务
 //设置任务优先级
-#define LED0_TASK_PRIO 				8
+#define LED0_TASK_PRIO 				12
 //任务堆栈大小
 #define LED0_STK_SIZE				128
 
@@ -31,6 +31,8 @@
 #define tmp_TASK_PRIO 				6
 #define tmp_STK_SIZE 				128
 
+#define bma_TASK_PRIO 				7
+#define bma_STK_SIZE 				128
 //任务堆栈
 extern __align(4) OS_STK	START_TASK_STK[START_STK_SIZE];
 
@@ -41,6 +43,7 @@ void float_task(void *pdata);
 void japan_task(void *pdata);
 void hello_task(void *pdata);
 void tmp_task(void *pdata);
+void bma_task(void *pdata);
 
 #endif
 
