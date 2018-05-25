@@ -9,11 +9,13 @@
 #include "ucosiitask.h"
 #include "delay.h"
 #include "24cxx.h"
+#include "tmp006.h"
+
 
 int main(void)
 {
-				OS_CPU_SR cpu_sr;
-			OS_ENTER_CRITICAL();  //进入临界区,关闭中断
+	OS_CPU_SR cpu_sr;
+	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
 	
   HAL_Init();
 	delay_init(80);
@@ -25,6 +27,7 @@ int main(void)
 	
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+	
 	
 	
 //	while(AT24CXX_Check())//检测不到24c02
