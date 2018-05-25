@@ -417,38 +417,7 @@ void esp8266_Get_IP(void)
 	atk_8266_at_response(1);	//发送串口模块返回值
 }
 
-/***********************************************************************
- 函数名：esp8266_AP_Init
- 功能：  初始化esp8266的AP模式
- 参数：  无
- 返回值：无
- 其他: 热点名称ATK_ESP8266;密码：12345678;端口号：8086
 
-***********************************************************************/
-void esp8266_AP_Init(void)
-{
-  u8 i;
-	for(i=0;i<1;i++)
-	{
-//		delay_ms(50);		
-		if(atk_8266_send_cmd("AT+CWMODE=2","OK",60))	//发送指令：AT+CWMODE=2
-		  {u2_printf("\r\nAP模式设置成功\r\n");}
-		else
-		  {u2_printf("\r\nAP模式设置失败\r\n");}
-		if(atk_8266_send_cmd("AT+CIPMUX=1","OK",60))		//发送指令：AT+CIPMUX=1
-		  {u2_printf("\r\n多连接开启\r\n");}
-		else
-		  {u2_printf("\r\n多连接开启失败\r\n");}		
-		if(atk_8266_SET_AP(SSID,PASS,WPA_WPA2_PSK,500)) //设置网络名称，密码，加密方式
-		  { u2_printf("\r\n网络设置完成\r\n");}
-		else
-		  {u2_printf("\r\n网络设置失败r\n");}	
-		if (atk_8266_SET_IPPORT(50))										//设置端口号
-		  {  u2_printf("\r\nIP和端口设置完成\r\n");  }		   		
-		else
-		  {u2_printf("\r\nIP和端口设置失败\r\n");}	
-	}
-}
 
 /***********************************************************************
  函数名：ESP8266_AP_Init

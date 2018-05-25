@@ -17,7 +17,6 @@
 #define WPA_WPA2_PSK 4                //¼ÓÃÜÄ£Ê½
 
 
-
 void atk_8266_at_response(u8 mode);                           //ÓÃ´®¿Ú2´òÓ¡WiFi½ÓÊÕµ½µÄÊı¾İ¡£
 u8* atk_8266_check_cmd(u8 *str);                              //ÅĞ¶ÏUART4_RX_BUFÊı×éÖĞÓĞÎŞÖ¸¶¨×Ö·û´® 
 u8 atk_8266_send_cmd(u8 *cmd,u8 *ack,u16 waittime);           //·¢ËÍWiFiÖ¸Áî
@@ -28,13 +27,8 @@ u8 atk_8266_SET_IPPORT(u16 timeout);                          //esp8266ÉèÖÃ¶àÂ·Á
 u8 atk_8266_SET_STA(u8 *ssid,u8 *password,u16 timeout);       //esp8266ÉèÖÃSTAÄ£Ê½
 u8 atk_8266_SET_PORT(u16 timeout);                            //ÉèÖÃ¶Ë¿ÚºÅ
 
-u8 stick_send_cmd(u8 *cmd,u8 *ack,u16 waittime);              //Í¨¹ı´®¿Ú£¬ÏòPC°ô·¢ËÍÏûÏ¢²¢µÈ´ıPC°ôµÄÓ¦´ğ
-u8* stick_check_cmd(u8 *str);                                 //ÅĞ¶Ï´®¿Ú·µ»ØÖµÓëÉè¶¨ÖµÊÇ·ñÒ»ÖÂ
-
 u8 ESP8266_SET_IP(u8 *Ip,u16 timeout);                        //ÉèÖÃIPµØÖ·
 u8 ESP8266_SET_PORT(u16 Port,u16 timeout);                    //ÉèÖÃ¶Ë¿ÚºÅ
-
-void esp_8266_apsta_Init(u8 n);                 //³õÊ¼»¯esp8266µÄAP·şÎñÆ÷-TCP·şÎñÆ÷Ä£Ê½
 
 void atk_8266_get_wanip(u8* ipbuf);             //»ñÈ¡ipbufÖĞ£¬½éÓÚ"\"ºÍ"\"ÖĞµÄÊı¾İ
 void esp8266_get_ip(u8* ipbuf);                 //´ÓipbufÖĞ»ñÈ¡Â·ÓÉÆ÷·ÖÅä¸øSTMµÄIPµØÖ·
@@ -45,18 +39,7 @@ void esp8266_send_data(u8 *data);               //·¢ËÍÊı¾İ¸øÉè±¸0
 
 void ESP8266_apsta_Init(u8 n);                  //³õÊ¼»¯esp8266µÄAP·şÎñÆ÷-TCP·şÎñÆ÷Ä£Ê½
 void ESP8266_AP_Init(u8 n);		                //³õÊ¼»¯esp8266µÄAPÄ£Ê½
-void ESP8266_Get_Controler_Type(u16 timeout);   //ÓĞWiFiÉè±¸Á¬ÈëÊ±£¬·ÖÅäÏàÓ¦µÄÉè±¸ºÅ
-void ESP8266_Close_Controler_Type(void);        //wifiÉè±¸ÍË³öÊ±£¬ÊÍ·Å·ÖÅäµÄÉè±¸ºÅ
-void ESP8266_send_data(u8 id,u8 *data);         //·¢ËÍÊı¾İ¸øÉè±¸ºÅÎªidµÄÉè±¸
-u8   ESP8266_Get_ID(void);                      //½ÓÊÕµ½µ±Ç°Éè±¸·¢ËÍµÄÖ¸Áîºó£¬Á¢Âí¸øÆä·µ»ØÒ»¸öReceivedÖ¸Áî
 
-void get_wifiname_wifipassword(u8 *ip1,u8 *ip2);//»ñÈ¡×Ö·û´®ÖĞµÄWiFiÃû³ÆºÍÃÜÂë
-void get_apname_wifipassword(u8 *ip1,u8 *ip2);  //»ñÈ¡×Ö·û´®ÖĞµÄWiFiÃû³ÆºÍÃÜÂë
-void get_ip_port(u8 *ip1,u16 data);             //»ñÈ¡×Ö·û´®ÖĞµÄWiFiµÄIPµØÖ·ºÍ¶Ë¿ÚºÅ
 
-void Flash_Read_STA(void);                      //ÔÚFlashÄÚ¶ÁÈ¡±£´æµÄÂ·ÓÉÆ÷Ãû³ÆºÍÃÜÂë
-void Flash_Read_AP(void);                       //ÔÚFlashÄÚ¶ÁÈ¡±£´æµÄÈÈµãÃû³ÆºÍ¶ÔÓ¦ÃÜÂë
-void Flash_Read_AP_IPPORT(void);                //ÔÚFlashÄÚ¶ÁÈ¡±£´æµÄIPµØÖ·ºÍ¶Ë¿ÚºÅ
-void WIFIStateCheck(void);
 #endif
 

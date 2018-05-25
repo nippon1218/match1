@@ -137,7 +137,7 @@ void tmp_task(void *pdata)
 
 		u2_printf("»·¾³ÎÂ¶È£º%d\r\n",Tdie_Temp);
 		//delay_ms(1000);
-		OSTimeDly(1200);
+		OSTimeDly(1000);
 	}
 }
 
@@ -150,7 +150,7 @@ void bma_task(void *pdata)
 		u2_printf("x£º%d\r\n",bmadata[0]);
 		u2_printf("y£º%d\r\n",bmadata[1]);
 		u2_printf("z£º%d\r\n",bmadata[2]);
-		OSTimeDly(1200);
+		OSTimeDly(1000);
 	}
 }
 
