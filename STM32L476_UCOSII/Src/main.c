@@ -15,9 +15,6 @@
 
 int main(void)
 {
-//	OS_CPU_SR cpu_sr;
-//	OS_ENTER_CRITICAL();  //进入临界区,关闭中断
-	
   HAL_Init();
 	delay_init(80);
 	IIC_Init();
@@ -30,7 +27,6 @@ int main(void)
 
 //	ESP8266_AP_Init(4);
 	
-//	OS_EXIT_CRITICAL();  //退出临界区,开中
 	printf("时钟主频为：%dMhz\r\n",HAL_RCC_GetHCLKFreq()/1000000);
 	OSInit();  //初始化UCOS
 	OSTaskCreate(start_task,  									//start_task任务
