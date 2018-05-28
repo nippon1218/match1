@@ -28,7 +28,6 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();	
 
-	
 //	ESP8266_AP_Init(4);
 	
 //	OS_EXIT_CRITICAL();  //退出临界区,开中
