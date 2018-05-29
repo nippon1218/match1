@@ -10,6 +10,15 @@
 
 #define READ_SDA	 HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_6)		
 
+
+//#define IIC_SDA_1 HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_SET)		
+//#define IIC_SDA_0 HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,GPIO_PIN_RESET)
+
+//#define IIC_SCL_1 HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_SET)
+//#define IIC_SCL_0 HAL_GPIO_WritePin(GPIOB,GPIO_PIN_8,GPIO_PIN_RESET)
+
+//#define READ_SDA	 HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_9)	
+
 /***********************IIC所有操作函数************************************/
 
 void IIC_Init(void);                    //初始化IIC的IO口				 

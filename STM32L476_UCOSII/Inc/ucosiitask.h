@@ -33,6 +33,10 @@
 
 #define bma_TASK_PRIO 				7
 #define bma_STK_SIZE 				128
+
+#define adc_TASK_PRIO 				8
+#define adc_STK_SIZE 				128
+
 //ÈÎÎñ¶ÑÕ»
 extern __align(4) OS_STK	START_TASK_STK[START_STK_SIZE];
 
@@ -44,7 +48,7 @@ void japan_task(void *pdata);
 void hello_task(void *pdata);
 void tmp_task(void *pdata);
 void bma_task(void *pdata);
-
+void adc_task(void *pdata);
 #endif
 
 

@@ -12,20 +12,24 @@
 #include "tmp006.h"
 #include "esp8266.h"
 #include "timer.h"
+#include "adc.h"
+
+
+
 
 int main(void)
 {
   HAL_Init();
+  SystemClock_Config();	
 	delay_init(80);
+  MX_GPIO_Init();	
 	IIC_Init();
-		
-  SystemClock_Config();
-	
-  MX_GPIO_Init();
+
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();	
-
+	MX_ADC3_Init();	
 //	ESP8266_AP_Init(4);
+
 	
 	printf("时钟主频为：%dMhz\r\n",HAL_RCC_GetHCLKFreq()/1000000);
 	OSInit();  //初始化UCOS

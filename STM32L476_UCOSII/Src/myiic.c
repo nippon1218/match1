@@ -47,6 +47,46 @@ void SDA_IN()
 }
 
 
+//void IIC_Init(void)
+//{
+//    GPIO_InitTypeDef GPIO_Initure;    
+//    __GPIOB_CLK_ENABLE();            //使能GPIOC时钟
+//    
+//    GPIO_Initure.Pin=GPIO_PIN_8|GPIO_PIN_9;
+//	
+//    GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;   //推挽输出
+//    GPIO_Initure.Pull=GPIO_PULLUP;           //上拉
+//    GPIO_Initure.Speed=GPIO_SPEED_FAST;      //快速
+//    HAL_GPIO_Init(GPIOB,&GPIO_Initure);
+
+//		IIC_SDA_1;		//IIC数据线，默认拉高
+//		IIC_SCL_1;		//IIC时钟线，默认拉高
+//}
+
+//void SDA_OUT()
+//{
+//    GPIO_InitTypeDef GPIO_Initure;    
+//    __GPIOB_CLK_ENABLE();            //使能GPIOC时钟
+//    GPIO_Initure.Pin=GPIO_PIN_9;		
+
+//    GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;   //推挽输出
+//    GPIO_Initure.Pull=GPIO_PULLUP;           //上拉
+//    GPIO_Initure.Speed=GPIO_SPEED_FAST;      //快速
+//    HAL_GPIO_Init(GPIOB,&GPIO_Initure);
+//}
+
+//void SDA_IN()
+//{
+//    GPIO_InitTypeDef GPIO_Initure;    
+//    __GPIOB_CLK_ENABLE();            //使能GPIOC时钟
+//	
+//    GPIO_Initure.Pin=GPIO_PIN_9;		
+//    GPIO_Initure.Mode=GPIO_MODE_INPUT;   //输入浮空
+//    GPIO_Initure.Pull=GPIO_PULLUP;           //上拉
+//    GPIO_Initure.Speed=GPIO_SPEED_FAST;      //快速
+//    HAL_GPIO_Init(GPIOB,&GPIO_Initure);
+//}
+
 void IIC_Start(void)
 {
 	OS_CPU_SR cpu_sr;
@@ -158,6 +198,7 @@ void IIC_Send_Byte(u8 txd)
 	for(t=0;t<8;t++)
 	{
 		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,(txd&0x80)>>7);			
+//		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_9,(txd&0x80)>>7);	
 		txd<<=1; 	  
 		delay_us(17);       //对TEA5767这三个延时都是必须的
 		IIC_SCL_1;

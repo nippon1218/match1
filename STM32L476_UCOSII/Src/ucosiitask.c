@@ -9,6 +9,9 @@
 #include "tmp006.h"
 #include "bma222.h"
 #include "esp8266.h"
+#include "adc.h"
+
+
 
 #define LedToggle HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 
@@ -25,7 +28,7 @@ __align(8) OS_STK japan_TASK_STK[japan_STK_SIZE];
 __align(8) OS_STK hello_TASK_STK[hello_STK_SIZE];
 __align(8) OS_STK tmp_TASK_STK[tmp_STK_SIZE];
 __align(8) OS_STK bma_TASK_STK[bma_STK_SIZE];
-
+__align(8) OS_STK adc_TASK_STK[adc_STK_SIZE];
 
 
 
@@ -40,6 +43,7 @@ void start_task(void *pdata){
 //	OSTaskCreate(hello_task,(void*)0,(OS_STK*)&hello_TASK_STK[hello_STK_SIZE-1],hello_TASK_PRIO); 
 	OSTaskCreate(tmp_task,(void*)0,(OS_STK*)&tmp_TASK_STK[tmp_STK_SIZE-1],tmp_TASK_PRIO); 
 	OSTaskCreate(bma_task,(void*)0,(OS_STK*)&bma_TASK_STK[bma_STK_SIZE-1],bma_TASK_PRIO);
+	OSTaskCreate(adc_task,(void*)0,(OS_STK*)&adc_TASK_STK[adc_STK_SIZE-1],adc_TASK_PRIO);
 	OSTaskSuspend(OS_PRIO_SELF); //挂起start任务
 	OS_EXIT_CRITICAL();  //退出临界区,开中断	
 }
@@ -157,7 +161,26 @@ void bma_task(void *pdata)
 
 
 
-
+void adc_task(void *pdata)
+{
+  u16 adcx;
+	while(1)
+	{	
+		adcx=Get_Adc(0);
+		u2_printf("ad采样的结果是：%d\r\n",adcx);
+				adcx=Get_Adc(1);
+		u2_printf("ad采样的结果是：%d\r\n",adcx);
+				adcx=Get_Adc(2);
+		u2_printf("ad采样的结果是：%d\r\n",adcx);
+				adcx=Get_Adc(3);
+		u2_printf("ad采样的结果是：%d\r\n",adcx);
+						adcx=Get_Adc(4);
+		u2_printf("ad采样的结果是：%d\r\n",adcx);
+								adcx=Get_Adc(5);
+		u2_printf("ad采样的结果是：%d\r\n",adcx);
+		OSTimeDly(1400);
+	}
+}
 
 
 
