@@ -164,20 +164,13 @@ void bma_task(void *pdata)
 void adc_task(void *pdata)
 {
   u16 adcx;
+	u8 m;
 	while(1)
 	{	
+		m++;
 		adcx=Get_Adc(0);
-		u2_printf("ad采样的结果是：%d\r\n",adcx);
+		u2_printf("ad采样的结果是：%d\r\n",m);
 				adcx=Get_Adc(1);
-		u2_printf("ad采样的结果是：%d\r\n",adcx);
-				adcx=Get_Adc(2);
-		u2_printf("ad采样的结果是：%d\r\n",adcx);
-				adcx=Get_Adc(3);
-		u2_printf("ad采样的结果是：%d\r\n",adcx);
-						adcx=Get_Adc(4);
-		u2_printf("ad采样的结果是：%d\r\n",adcx);
-								adcx=Get_Adc(5);
-		u2_printf("ad采样的结果是：%d\r\n",adcx);
 		OSTimeDly(1400);
 	}
 }
