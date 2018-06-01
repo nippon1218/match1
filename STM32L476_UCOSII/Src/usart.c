@@ -37,10 +37,14 @@
 #include "sys.h"
 #include "timer.h"
 #include "gpio.h"
-
+#include "adc.h"
 /* USER CODE BEGIN 0 */
 #include "stdio.h"
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB	  
+
+#define BUFFER_SIZE 128
+
+
 #if 1
 #pragma import(__use_no_semihosting)             
 //标准库需要的支持函数                 
@@ -77,6 +81,14 @@ UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 /* USART2 init function */
 
+DMA_HandleTypeDef hdma_usart2_rx;
+
+uint8_t rx_len=0,bootfirst=1;
+uint8_t recv_end_flag=0;
+uint8_t rx_buffer[BUFFER_SIZE];
+
+
+
 void MX_USART2_UART_Init(void)
 {
   huart2.Instance = USART2;
@@ -90,6 +102,7 @@ void MX_USART2_UART_Init(void)
   huart2.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
   huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   HAL_UART_Init(&huart2);
+
 }
 
 void MX_USART3_UART_Init(void)
@@ -131,11 +144,39 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 		__HAL_UART_ENABLE_IT(huart,UART_IT_RXNE);		//开启接收中断
-		HAL_NVIC_EnableIRQ(USART2_IRQn);				//使能USART2中断
-		HAL_NVIC_SetPriority(USART2_IRQn,1,3);			//抢占优先级1，子优先级3
+
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */
+	
+	
+	    /* USART2 DMA Init */
+    /* USART2_RX Init */
+    hdma_usart2_rx.Instance = DMA1_Channel6;
+    hdma_usart2_rx.Init.Request = DMA_REQUEST_2;
+    hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
+
+    __HAL_LINKDMA(huart,hdmarx,hdma_usart2_rx);
+
+    /* USART2 interrupt Init */
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+		
+		HAL_NVIC_EnableIRQ(USART2_IRQn);				//使能USART2中断
+		HAL_NVIC_SetPriority(USART2_IRQn,1,3);			//抢占优先级1，子优先级3
+	
+	
+	
   }
 	if(huart->Instance==USART3)
   {
@@ -183,7 +224,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     PA3     ------> USART2_RX 
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
-
+		HAL_DMA_DeInit(huart->hdmarx);
+		HAL_NVIC_DisableIRQ(USART2_IRQn);
   }
   /* USER CODE BEGIN USART2_MspDeInit 1 */
 
@@ -192,28 +234,41 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
 void USART2_IRQHandler(void)                	
 { 
+		uint32_t tmp_flag = 0;
+  uint32_t temp;
+	
 	u8 Res;
 	if((__HAL_UART_GET_FLAG(&huart2,UART_FLAG_RXNE)!=RESET))  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
 	{
-        HAL_UART_Receive(&huart2,&Res,1,1000); 
-		if((USART2_RX_LEN&0x8000)==0)//接收未完成
-		{
-			if(USART2_RX_LEN&0x4000)//接收到了0x0d
-			{
-				if(Res!=0x0a)USART2_RX_LEN=0;//接收错误,重新开始
-				else USART2_RX_LEN|=0x8000;	 //接收完成了 
+//        HAL_UART_Receive(&huart2,&Res,1,1000); 
+//		if((USART2_RX_LEN&0x8000)==0)//接收未完成
+//		{
+//			if(USART2_RX_LEN&0x4000)//接收到了0x0d
+//			{
+//				if(Res!=0x0a)USART2_RX_LEN=0;//接收错误,重新开始
+//				else USART2_RX_LEN|=0x8000;	 //接收完成了 
+//			}
+//			else //还没收到0X0D
+//			{	
+//				if(Res==0x0d)USART2_RX_LEN|=0x4000;
+//				else
+//				{
+//					USART2_RX_BUF[USART2_RX_LEN&0X3FFF]=Res ;
+//					USART2_RX_LEN++;
+//					if(USART2_RX_LEN>(USART2_MAX_RECV_LEN-1))USART2_RX_LEN=0;//接收数据错误,重新开始接收	  
+//				}		 
+//			}
+					__HAL_UART_CLEAR_IDLEFLAG(&huart2);
+			temp = huart2.Instance->ISR;  
+			temp = huart2.Instance->RDR; 
+			HAL_UART_DMAStop(&huart2);
+			temp  = hdma_usart2_rx.Instance->CNDTR;
+		  if(bootfirst==1){bootfirst=0;rx_len=0;}
+			else{
+			rx_len =  BUFFER_SIZE - temp; 
+		  recv_end_flag = 1;
 			}
-			else //还没收到0X0D
-			{	
-				if(Res==0x0d)USART2_RX_LEN|=0x4000;
-				else
-				{
-					USART2_RX_BUF[USART2_RX_LEN&0X3FFF]=Res ;
-					USART2_RX_LEN++;
-					if(USART2_RX_LEN>(USART2_MAX_RECV_LEN-1))USART2_RX_LEN=0;//接收数据错误,重新开始接收	  
-				}		 
-			}
-		}   		 
+//		}   		 
 	}
 	HAL_UART_IRQHandler(&huart2);	
 } 

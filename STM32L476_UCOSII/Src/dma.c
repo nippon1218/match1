@@ -1,11 +1,16 @@
 /**
   ******************************************************************************
-  * File Name          : USART.h
+  * File Name          : dma.c
   * Description        : This file provides code for the configuration
-  *                      of the USART instances.
+  *                      of all the requested memory to memory DMA transfers.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2015 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -31,67 +36,79 @@
   *
   ******************************************************************************
   */
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __usart_H
-#define __usart_H
-#ifdef __cplusplus
- extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l4xx_hal.h"
-#include "sys.h"
-#include "stdarg.h"	 	 
-#include "stdio.h"	 	 
-#include "string.h"	
-	 
-	 
-	 
-	 //串口2相关宏定义
-#define USART2_MAX_RECV_LEN		1024					//最大接收缓存字节数
-#define USART2_MAX_SEND_LEN		1024					//最大发送缓存字节数
-#define USART2_RX_EN 			1					//0,不接收;1,接收.
-	 
-#define USART3_MAX_RECV_LEN		1024					//最大接收缓存字节数
-#define USART3_MAX_SEND_LEN		1024					//最大发送缓存字节数
+#include "dma.h"
 
-	 
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN 0 */
 
-/* USER CODE END Includes */
+/* USER CODE END 0 */
 
-extern UART_HandleTypeDef huart2;
-extern UART_HandleTypeDef huart3;
-extern u8  USART2_RX_BUF[USART2_MAX_RECV_LEN]; 		//接收缓冲,最大USART2_MAX_RECV_LEN字节
-extern u8  USART2_TX_BUF[USART2_MAX_SEND_LEN]; 		//发送缓冲,最大USART2_MAX_SEND_LEN字节
-extern u16 USART2_RX_LEN;   						//接收数据状态
+/*----------------------------------------------------------------------------*/
+/* Configure DMA                                                              */
+/*----------------------------------------------------------------------------*/
 
-extern u8  USART3_RX_BUF[USART3_MAX_RECV_LEN]; 		//接收缓冲,最大USART2_MAX_RECV_LEN字节
-extern u8  USART3_TX_BUF[USART3_MAX_SEND_LEN]; 		//发送缓冲,最大USART2_MAX_SEND_LEN字节
-extern u16 USART3_RX_LEN;   						//接收数据状态
+/* USER CODE BEGIN 1 */
 
-extern uint8_t rx_len;
-	 
-extern uint8_t bootfirst;
-extern uint8_t recv_end_flag;
-extern uint8_t rx_buffer[128];
+/* USER CODE END 1 */
 
-/* USER CODE BEGIN Private defines */
+/** 
+  * Enable DMA controller clock
+  */
+	
+	
+extern DMA_HandleTypeDef hdma_adc1;
+extern DMA_HandleTypeDef hdma_usart2_rx;
+	
+	
+void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
-/* USER CODE END Private defines */
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+  /* DMA1_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 
-void MX_USART2_UART_Init(void);
-void MX_USART3_UART_Init(void);
-void u2_printf(char* fmt,...) ;
-void u3_printf(char* fmt,...) ;
-/* USER CODE BEGIN Prototypes */
-
-/* USER CODE END Prototypes */
-
-#ifdef __cplusplus
 }
-#endif
-#endif /*__ usart_H */
+
+
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+
+void DMA1_Channel6_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel6_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel6_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_rx);
+  /* USER CODE BEGIN DMA1_Channel6_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel6_IRQn 1 */
+}
+
+
+
+
+
+
+
+
+/* USER CODE BEGIN 2 */
+
+/* USER CODE END 2 */
 
 /**
   * @}

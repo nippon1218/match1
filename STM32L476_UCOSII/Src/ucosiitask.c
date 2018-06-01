@@ -13,6 +13,7 @@
 
 
 
+
 #define LedToggle HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 
 const u8 TEXT_Buffer[]={"sony*****IICTest"};
@@ -31,7 +32,11 @@ __align(8) OS_STK bma_TASK_STK[bma_STK_SIZE];
 __align(8) OS_STK adc_TASK_STK[adc_STK_SIZE];
 
 
+u16 uhADCxConvertedValue[NB][CHN];
 
+unsigned long shijian=0;
+volatile int dmaflage=0;
+float vcc[CHN]={0};
 
 void start_task(void *pdata){
 	OS_CPU_SR cpu_sr;
@@ -165,23 +170,77 @@ void adc_task(void *pdata)
 {
   u16 adcx;
 	u8 m;
+	u8 i;
+	u8 ID_num[12];
+	u8 a;
+	
+
+
+//		__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); 	
+//	u2_printf("__HAL_UART_ENABLE_IT\r\n");	
+	
 	while(1)
 	{	
-		m++;
-		adcx=Get_Adc(0);
-		u2_printf("ad采样的结果是：%d\r\n",m);
-				adcx=Get_Adc(1);
-		OSTimeDly(1400);
+	 if(dmaflage==1)
+	 {
+			 dmaflage=0;
+			 for(a=0;a<CHN;a++)
+			 {vcc[a]=adcfilter(NB,a)*3.3/4095;
+				u2_printf("vcc[%d]= %0.2fV ",a,vcc[a]);
+				vcc[a]=0; 
+			 }
+				printf("\r");
+
+			 m=HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&uhADCxConvertedValue, ADCNB);	
+			 u2_printf("HAL_ADC_Start_DMA=%d\r\n",m);
+	}
+		 uartdamget();
+
+		
+//		adcx=Get_Adc(4);
+//		u2_printf("ad采样的结果是：%d\r\n",adcx);
+//				adcx=Get_Adc(1);
+		OSTimeDly(900);
 	}
 }
 
 
 
+u16 adcfilter(u16 number,u8 channel)
+{
+	u8 i=0;
+	u32 tempe=0;
+	u32 sum=0;
+	for(i=0;i<number;i++)
+	{
+		tempe=uhADCxConvertedValue[i][channel];
+		sum+=tempe;
+	}
+	return (u16)(sum/number);
+}
 
+void uartdamget(void)
+{
+	u8 i;
+	if(recv_end_flag ==1)
+	{
 
+		u2_printf("\nrx_len=%d\r\n",rx_len);
 
+		for(i=0;i<rx_len;i++)
+		{
+				u2_printf("%c",rx_buffer[i]);
+		}
+		u2_printf("\r\n");	  
+		for(i = 0; i < rx_len ; i++) rx_buffer[i]=0;
+		rx_len=0;
+		recv_end_flag=0;
+	}
+	HAL_UART_Receive_DMA(&huart2,(uint8_t*)rx_buffer,128);
+}
 
-
-
-
-
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+	dmaflage=1;
+	HAL_ADC_Stop_DMA(&hadc1);
+}

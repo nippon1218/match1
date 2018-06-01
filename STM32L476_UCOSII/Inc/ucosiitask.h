@@ -1,6 +1,12 @@
 #ifndef __UCOSiiTASK_
 #define __UCOSiiTASK_
 #include "includes.h"
+#include "sys.h"
+
+#define NB  30
+#define CHN  3
+#define ADCNB NB*CHN
+
 
 //设置任务的优先级
 #define START_TASK_PRIO				0
@@ -39,7 +45,7 @@
 
 //任务堆栈
 extern __align(4) OS_STK	START_TASK_STK[START_STK_SIZE];
-
+extern u16 uhADCxConvertedValue[NB][CHN];
 
 void start_task(void *pdata);
 void led0_task(void *pdata);
@@ -49,6 +55,8 @@ void hello_task(void *pdata);
 void tmp_task(void *pdata);
 void bma_task(void *pdata);
 void adc_task(void *pdata);
+void uartdamget(void);
+u16 adcfilter(u16 number,u8 channel);
 #endif
 
 

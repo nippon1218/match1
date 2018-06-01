@@ -1,11 +1,16 @@
 /**
   ******************************************************************************
-  * File Name          : USART.h
-  * Description        : This file provides code for the configuration
-  *                      of the USART instances.
+  * File Name          : dma.h
+  * Description        : This file contains all the function prototypes for
+  *                      the dma.c file
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2015 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -32,58 +37,35 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __usart_H
-#define __usart_H
+#ifndef __dma_H
+#define __dma_H
+
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
-#include "sys.h"
-#include "stdarg.h"	 	 
-#include "stdio.h"	 	 
-#include "string.h"	
-	 
-	 
-	 
-	 //串口2相关宏定义
-#define USART2_MAX_RECV_LEN		1024					//最大接收缓存字节数
-#define USART2_MAX_SEND_LEN		1024					//最大发送缓存字节数
-#define USART2_RX_EN 			1					//0,不接收;1,接收.
-	 
-#define USART3_MAX_RECV_LEN		1024					//最大接收缓存字节数
-#define USART3_MAX_SEND_LEN		1024					//最大发送缓存字节数
 
+
+/* DMA memory to memory transfer handles -------------------------------------*/
+extern void _Error_Handler(char*, int);
+extern DMA_HandleTypeDef hdma_usart2_rx;
 	 
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart2;
-extern UART_HandleTypeDef huart3;
-extern u8  USART2_RX_BUF[USART2_MAX_RECV_LEN]; 		//接收缓冲,最大USART2_MAX_RECV_LEN字节
-extern u8  USART2_TX_BUF[USART2_MAX_SEND_LEN]; 		//发送缓冲,最大USART2_MAX_SEND_LEN字节
-extern u16 USART2_RX_LEN;   						//接收数据状态
-
-extern u8  USART3_RX_BUF[USART3_MAX_RECV_LEN]; 		//接收缓冲,最大USART2_MAX_RECV_LEN字节
-extern u8  USART3_TX_BUF[USART3_MAX_SEND_LEN]; 		//发送缓冲,最大USART2_MAX_SEND_LEN字节
-extern u16 USART3_RX_LEN;   						//接收数据状态
-
-extern uint8_t rx_len;
-	 
-extern uint8_t bootfirst;
-extern uint8_t recv_end_flag;
-extern uint8_t rx_buffer[128];
-
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_USART2_UART_Init(void);
-void MX_USART3_UART_Init(void);
-void u2_printf(char* fmt,...) ;
-void u3_printf(char* fmt,...) ;
+void MX_DMA_Init(void);
+
+void DMA1_Channel1_IRQHandler(void);
+void DMA1_Channel6_IRQHandler(void);
+	 
+	 
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */
@@ -91,11 +73,8 @@ void u3_printf(char* fmt,...) ;
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ usart_H */
 
-/**
-  * @}
-  */
+#endif /* __dma_H */
 
 /**
   * @}

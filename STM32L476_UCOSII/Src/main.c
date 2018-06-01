@@ -13,12 +13,14 @@
 #include "esp8266.h"
 #include "timer.h"
 #include "adc.h"
+#include "dma.h"
 
 
 
 
 int main(void)
 {
+	u8 m;
   HAL_Init();
   SystemClock_Config();	
 	delay_init(80);
@@ -27,7 +29,13 @@ int main(void)
 
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();	
-	MX_ADC3_Init();	
+//	MX_ADC3_Init();	
+  MX_DMA_Init();
+  MX_ADC1_Init();
+		m=HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+u2_printf("HAL_ADCEx_Calibration_Start=%d\r\n",m);
+	m=HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&uhADCxConvertedValue, ADCNB);	
+	u2_printf("HAL_ADC_Start_DMA=%d\r\n",m);
 //	ESP8266_AP_Init(4);
 
 	
