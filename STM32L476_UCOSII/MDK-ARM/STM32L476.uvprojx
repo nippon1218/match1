@@ -554,6 +554,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\adc.c</FilePath>
             </File>
+            <File>
+              <FileName>dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\dma.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
